@@ -3,14 +3,16 @@
 int AUX_WaitEventTimeoutCount(SDL_Event* evt, Uint32* ms){
 	Uint32 before = SDL_GetTicks();    
 	if (SDL_WaitEventTimeout(evt, *ms)){
-    	*ms -= (SDL_GetTicks() - before);
-		if (*ms < 0) {
+    	int temporario = *ms - (SDL_GetTicks() - before);
+		if (temporario < 0) {
 			*ms = 0;
 		} 
+		else {
+			*ms = temporario;
+		}
 		return 1;
-    } else {
-    	return 0;
-    }
+    } 
+	return 0;
 }
 
 
@@ -29,9 +31,10 @@ int main (int argc, char* args[])
 
 	int fim = 1;
 	int timer = 10;	
-	SDL_Event evt;
     SDL_Rect r = { 0, 0, 20, 20};
-
+	int vx, vy; vx = 1; vy = 1;
+	printf("%d",timer);
+  
     while (fim) {
 
 		SDL_SetRenderDrawColor(ren, 0x00,0x00,0x00,0x00);
@@ -39,7 +42,8 @@ int main (int argc, char* args[])
 	    SDL_SetRenderDrawColor(ren, 0xFF,0xFF,0xFF,0x00);
 	    SDL_RenderFillRect(ren, &r);
 	    SDL_RenderPresent(ren);
-
+		
+		SDL_Event evt;
 		if (AUX_WaitEventTimeoutCount(&evt, &timer)){
 			if (evt.type == SDL_WINDOWEVENT){
             	if (SDL_WINDOWEVENT_CLOSE == evt.window.event){
@@ -47,15 +51,13 @@ int main (int argc, char* args[])
 				}
             }		    
 		} else {
-			if (r.x >= 500){
-				r.x+=1;
-				r.y-=1;
-			}
-		    if (r.x <500) {
-				r.x += 1;
-		    	r.y += 1;
-		    }
-			timer = 10;
+			 if (r.x >= 600) vx = -1;
+			 if (r.x <= 0) vx = 2;
+			 if (r.y >= 500) vy = -1;
+			 if (r.y <= 0) vy = 2;
+			 r.x += 1*vx;
+			 r.y += 1*vy;
+			 timer = 10;	
 		}
 
 	}

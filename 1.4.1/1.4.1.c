@@ -1,5 +1,6 @@
 #include <SDL2/SDL.h>
-
+#include <stdio.h>
+#include <stdlib.h>
 
 
 int main (int argc, char* args[])
@@ -22,7 +23,7 @@ int main (int argc, char* args[])
     while (n) {
         SDL_SetRenderDrawColor(ren, 0xFF,0xFF,0xFF,0x00);
         SDL_RenderClear(ren);
-        SDL_SetRenderDrawColor(ren,1,1,1,0x00);
+        SDL_SetRenderDrawColor(ren,rand()%255,rand()%255,rand()%255,0x00);
         SDL_RenderFillRect(ren, &r);
         int i = 0;
 		
@@ -52,7 +53,7 @@ int main (int argc, char* args[])
         	switch (evt.button.button){
         		case SDL_BUTTON_LEFT:
         			if (count <= 9) {	    
-        				SDL_Rect temp = { evt.button.x, evt.button.y, 10, 10};
+        				SDL_Rect temp = { evt.button.x, evt.button.y, rand()%50, rand()%50};
 					q[count] = temp;
         				count += 1;
         			}break;
