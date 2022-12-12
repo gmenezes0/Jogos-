@@ -1,7 +1,10 @@
 #include <SDL2/SDL.h>
 #include <stdio.h>
-#include <stdlib.h>
 
+typedef struct {
+	SDL_Rect r;
+    int colors[3];
+} Rcolorido;
 
 int main (int argc, char* args[])
 {
@@ -14,62 +17,65 @@ int main (int argc, char* args[])
                       );
     SDL_Renderer* ren = SDL_CreateRenderer(win, -1, 0);
 
-    /* EXECUÇÃO */ 
-    int count = 0;
-    int n = 1;
-    SDL_Rect r = { 40,20, 10,10 };
-    SDL_Rect q[10];
+    /* EXECUÇÃO */
+    int rCont = 0; 
+	Rcolorido rect[10];
+    SDL_Rect player = { 40,20, 10,10 };
     SDL_Event evt;
-    while (n) {
+    int running = 1;
+    
+    while (running) {
         SDL_SetRenderDrawColor(ren, 0xFF,0xFF,0xFF,0x00);
         SDL_RenderClear(ren);
-        SDL_SetRenderDrawColor(ren,rand()%255,rand()%255,rand()%255,0x00);
-        SDL_RenderFillRect(ren, &r);
-        int i = 0;
-		
-	for (i;i<count;i++){
-		SDL_RenderFillRect(ren,&q[i]);
-	}
-	
-	SDL_RenderPresent(ren);
-        SDL_WaitEvent(&evt);
-        if (evt.type == SDL_KEYDOWN) {
-            switch (evt.key.keysym.sym) {
-                case SDLK_UP:
-                    r.y -= 5;
-                    break;
-                case SDLK_DOWN:
-                    r.y += 5;
-                    break;
-                case SDLK_LEFT:
-                    r.x -= 5;
-                    break;
-                case SDLK_RIGHT:
-                    r.x += 5;
-                    break;
-            }
-        }
-        if (evt.type == SDL_MOUSEBUTTONDOWN) {
-        	switch (evt.button.button){
-        		case SDL_BUTTON_LEFT:
-        			if (count <= 9) {	    
-        				SDL_Rect temp = { evt.button.x, evt.button.y, rand()%50, rand()%50};
-					q[count] = temp;
-        				count += 1;
-        			}break;
-        	}
-        }
+        int i =0;
+        for (i; i<rCont; i++){
+            SDL_SetRenderDrawColor(ren,rect[i].colors[0],rect[i].colors[1],rect[i].colors[2],0x00);
+            SDL_RenderFillRect(ren, &rect[i].r);
+        } 
         
-        if (evt.type == SDL_WINDOWEVENT) {
-        	switch (evt.window.event){	
-			case SDL_WINDOWEVENT_CLOSE:
-				n = 0;
-			 break;}
-			
-	}
-    }
-SDL_DestroyRenderer(ren);
-SDL_DestroyWindow(win);
-SDL_Quit();    
+        SDL_SetRenderDrawColor(ren, 0x00,0x00,0xFF,0x00);
+        SDL_RenderFillRect(ren, &player);
+        
+        SDL_RenderPresent(ren);
 
+        SDL_WaitEvent(&evt);
+		const Uint8 *state = SDL_GetKeyboardState(NULL);        
+        switch (evt.type){
+            case SDL_KEYDOWN:
+                switch (evt.key.keysym.sym) {
+                    case SDLK_UP:
+                        player.y -= 5;
+                        if (player.y < 0) player.y = 0;
+                        break;
+                    case SDLK_DOWN:
+                        player.y += 5;
+                        if (player.y > 490) player.y = 490;
+                        break;
+                    case SDLK_LEFT:
+                        player.x -= 5;
+                        if (player.x < 0) player.x = 0;
+                        break;
+                    case SDLK_RIGHT:
+                        player.x += 5;
+                        if (player.x > 490) player.x = 490;
+                        break;
+                }
+			case SDL_WINDOWEVENT:
+                if (SDL_WINDOWEVENT_CLOSE == evt.window.event){
+					running = 0;
+                } break; 
+                
+			case SDL_MOUSEBUTTONDOWN:
+                if (SDL_BUTTON_LEFT == evt.button.button && rCont < 10){
+                    SDL_Rect temp = {evt.button.x,evt.button.y,rand()%20+10,rand()%20+10};
+                    int j = 0; for (j; j<4; j++){
+                        rect[rCont].colors[j] = rand()%255;
+                    } rect[rCont].r = temp; rCont += 1;             
+			    } break;
+    }}
+
+    /* FINALIZACAO */
+    SDL_DestroyRenderer(ren);
+    SDL_DestroyWindow(win);
+    SDL_Quit();
 }
